@@ -1,7 +1,6 @@
 # Recurrent Looped Transformer
 
 [![Paper](https://img.shields.io/badge/Paper-English-b31b1b.svg)](./Recurrent_Looped_Transformer.pdf)
-[![中文论文](https://img.shields.io/badge/Paper-中文-b31b1b.svg)](./Recurrent_Looped_Transformer_ZH.pdf)
 [![Website](https://img.shields.io/badge/Project-Website-blue)](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)
 
 ### Latent reasoning with infinite temporal depth
@@ -11,7 +10,7 @@
 **Author:** [Yifan Zhang](https://yifzhang.com)  
 **Date:** September 12, 2026
 
-[[English Paper](./Recurrent_Looped_Transformer.pdf)] [[中文论文](./Recurrent_Looped_Transformer_ZH.pdf)] [[Project Website](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)]
+[[English Paper](./Recurrent_Looped_Transformer.pdf)] [[Project Website](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)]
 
 ![figure1](figure1.png) 
 
@@ -60,7 +59,6 @@ Exact current-policy replay rebuilds parameter-dependent caches after weight upd
 ## Resources
 
 - [English technical report](./Recurrent_Looped_Transformer.pdf)
-- [中文技术报告](./Recurrent_Looped_Transformer_ZH.pdf)
 - [Project website](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)
 - [Prefill–decode kernel mismatch note](https://github.com/yifanzhang-pro/Pretraining-RL-Science/blob/master/Prefill_Decode_Kernel_Mismatch.pdf)
 
