@@ -86,3 +86,7 @@ RLT fits both tasks at the training length, but accuracy declines on longer sequ
   url    = {https://github.com/yifanzhang-pro/recurrent-looped-tranformer}
 }
 ```
+
+## License
+
+Copyright 2026 Yifan Zhang. Licensed under the [Apache License 2.0](./LICENSE).
