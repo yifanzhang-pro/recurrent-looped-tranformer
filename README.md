@@ -56,7 +56,7 @@ The concrete configuration uses **48 encoder layers + 48 decoder layers**, with 
 
 Exact current-policy replay rebuilds parameter-dependent caches after weight updates. Full gradients pass through recurrent outputs, decoder KV, and encoder memory. Detaching any of these is a gradient approximation. Behavior log-probabilities must describe the actual sampling distribution; exact importance sampling also requires support coverage. Shared execution semantics remove structural prompt-boundary mismatch but do not alone guarantee numerical kernel parity or an unbiased off-policy objective.
 
-## Independent proof of concept
+## Preliminary synthetic experiments
 
 Synthetic state-tracking results contributed by [@AradhyeAgarwal](https://x.com/AradhyeAgarwal), using a small implementation with approximately **79K parameters** and **3 seeds**. Training length is **32 operations**; evaluation extends to **128 operations (4× the training length)**, with **2,048 test programs per task and length**.
 
