@@ -62,10 +62,14 @@ Synthetic state-tracking results contributed by [@AradhyeAgarwal](https://x.com/
 
 ![Independent RLT state-tracking results at up to four times the training length, comparing RLT, GRU, Transformer, and token-only merge.](./assets/rlt-state-tracking-results.png)
 
-| Task | RLT accuracy at 128 operations | GRU accuracy at 128 operations |
-| --- | ---: | ---: |
-| Parity | 60.8% | 100% |
-| Five-state transitions | 20.7% | 99.97% |
+Final-state accuracy at **128 operations (4× the training length)**:
+
+| Task | RLT | GRU | Transformer | Token-only merge |
+| --- | ---: | ---: | ---: | ---: |
+| Parity | 60.8% | 100% | ≈48% | ≈50% |
+| Five-state transitions | 20.7% | 99.97% | ≈20% | ≈20% |
+
+Transformer and token-only merge values are approximate readings from the figure (marked ≈); their exact values are not labeled. RLT and GRU values are taken from the figure's numeric labels.
 
 RLT fits both tasks at the training length, but accuracy declines on longer sequences; GRU generalizes more reliably in this experiment. Chance accuracy is 50% for parity and 20% for five-state transitions. Points show means across seeds; whiskers show seed minima and maxima. Parameter and data budgets were matched; FLOPs were not. These are independent synthetic proof-of-concept results, not a validation of large-scale reasoning or RL scaling.
 
