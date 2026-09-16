@@ -3,15 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Recurrent Looped Transformer — Yifan Zhang</title>
-<meta name="description" content="Recurrent Looped Transformer: latent reasoning with unbounded temporal depth, model–hardware co-design, and consistent current-policy RL replay.">
+<title>Recurrent Looped Transformer</title>
+<meta name="description" content="Recurrent Looped Transformer: architecture, depth-eight algorithmic experiments, and consistent policy replay. Updated September 15, 2026.">
 <meta name="citation_author" content="Yifan Zhang">
+<meta name="citation_author" content="Jichen Feng">
+<meta name="citation_author" content="Shihan Qin">
 <meta name="citation_title" content="Recurrent Looped Transformer">
 <meta name="citation_publication_date" content="2026/09/12">
 <meta name="citation_pdf_url" content="https://raw.githubusercontent.com/yifanzhang-pro/recurrent-looped-tranformer/master/Recurrent_Looped_Transformer.pdf">
 <meta property="og:title" content="Recurrent Looped Transformer">
-<meta property="og:description" content="One recurrent computation across prompt and response. Latent reasoning with infinite temporal depth.">
+<meta property="og:description" content="Recurrent computation across prompt and response, with depth-eight experiments on addition, parity, modular arithmetic and permutation tracking.">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://yifanzhang-pro.github.io/recurrent-looped-tranformer/figure1.png">
+<meta property="og:image:alt" content="RLT causal encoder and recurrent decoder across prompt and response">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230A0A0A'/%3E%3Ctext x='50' y='58' font-family='Arial,sans-serif' font-size='30' font-weight='700' fill='white' text-anchor='middle'%3ERLT%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -203,41 +207,93 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #73
 .architecture-top{grid-template-columns:1fr}.arch-arrow{transform:rotate(90deg);text-align:center}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+/* Experiment tables and expandable full-resolution figures. */
+.content img{height:auto}
+.table caption{padding:1rem;text-align:left;color:var(--ink-3);font-size:.9rem}
+.results-table{min-width:960px;font-size:.82rem;font-variant-numeric:tabular-nums}
+.results-table th,.results-table td{padding:.85rem .65rem}
+.results-table td{white-space:nowrap}
+.figure-details{border:1px solid var(--line);border-radius:12px;margin:1.5rem 0;padding:1rem 1.25rem;background:var(--bg)}
+.figure-details summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.figure-details[open] summary{margin-bottom:1rem}
+.table-container:focus-visible{outline:3px solid #737373;outline-offset:3px}
 </style>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <nav class="navbar" aria-label="Main navigation"><div class="container">
 <div class="navbar-brand"><a class="navbar-item" href="#top">RLT</a><button type="button" class="navbar-burger" aria-label="Open navigation" aria-expanded="false" aria-controls="navbarMenu"><span></span><span></span><span></span></button></div>
-<div id="navbarMenu" class="navbar-menu"><div class="navbar-end"><a class="navbar-item" href="#abstract">Abstract</a><a class="navbar-item" href="#overview">Overview</a><a class="navbar-item" href="#execution">Execution</a><a class="navbar-item" href="#citation">Citation</a><a class="navbar-item" href="https://yfz.ai/blog">Blog</a></div></div>
+<div id="navbarMenu" class="navbar-menu"><div class="navbar-end"><a class="navbar-item" href="#abstract">Abstract</a><a class="navbar-item" href="#overview">Architecture</a><a class="navbar-item" href="#experiments">Results</a><a class="navbar-item" href="#execution">Execution</a><a class="navbar-item" href="#citation">Citation</a><a class="navbar-item" href="https://yfz.ai/blog">Blog</a></div></div>
 </div></nav>
 <header class="hero" id="top"><div class="hero-body"><div class="container has-text-centered">
 <p class="eyebrow">Architecture · Hardware · Reinforcement learning</p>
 <h1 class="title">Recurrent Looped<br>Transformer</h1>
-<p class="subtitle is-hero-subtitle"><span class="highlight">Latent reasoning with infinite temporal depth.</span><br>One recurrent computation across every prompt and response token.</p>
-<div class="authors-list"><a href="https://yifzhang.com">Yifan Zhang</a></div>
-<div class="affiliations">Technical report &nbsp;·&nbsp; September 12, 2026</div>
-<div class="hero-links"><a class="button primary" href="Recurrent_Looped_Transformer.pdf">Paper ↗</a><a class="button" href="https://github.com/yifanzhang-pro/recurrent-looped-tranformer">GitHub ↗</a><a class="button" href="#citation">Cite this work</a></div>
-<div style="margin-top:1.4rem"><span class="pill">Latent reasoning</span><span class="pill">Hardware co-design</span><span class="pill">RL co-design</span></div>
+<p class="subtitle is-hero-subtitle"><span class="highlight">Recurrent computation across prompt and response.</span><br>Architecture, execution and depth-eight algorithmic experiments.</p>
+<div class="authors-list"><a href="https://yifzhang.com">Yifan Zhang</a> &nbsp;·&nbsp; Jichen Feng &nbsp;·&nbsp; Shihan Qin</div>
+<div class="affiliations">Technical report &nbsp;·&nbsp; September 12, 2026<br>Updated September 15, 2026</div>
+<div class="hero-links"><a class="button primary" href="Recurrent_Looped_Transformer.pdf">Paper ↗</a><a class="button" href="https://github.com/yifanzhang-pro/recurrent-looped-tranformer">GitHub ↗</a><a class="button" href="#experiments">Experimental results ↓</a><a class="button" href="#citation">Cite this work</a></div>
+<div style="margin-top:1.4rem"><span class="pill">Hidden-state feedback</span><span class="pill">Shared global KV</span><span class="pill">Exact policy replay</span></div>
 </div></div></header>
 <main id="main">
 <section id="abstract" class="section content-section"><div class="container"><h2 class="section-title">Abstract</h2><div class="content">
-<p><strong>Recurrent Looped Transformer (RLT)</strong> combines a causal encoder with a recurrent decoder that carries its final hidden state and layerwise sliding-window attention (SWA) cache across every prompt and response token. The encoder constructs global key–value memory; the decoder extends a continuous latent computation as the sequence grows.</p>
-<p>The design brings together <strong>latent reasoning with unbounded temporal depth</strong>, <strong>model–hardware co-design</strong>, and <strong>model–RL algorithm co-design</strong>. Parallel encoder work, sequence batching, memory reuse, and checkpointing surround a recurrent core. Pretraining, SFT, sampling, and current-policy replay share the same complete-state transition.</p>
-<p>Infinite depth refers to an extensible temporal path, not infinite work within a token. Realized reasoning gains, hardware efficiency, and RL scaling remain to be established.</p>
+<p>Recurrent Looped Transformer (RLT) passes the decoder's final hidden state to the next token, together with that token's causal encoder representation. The decoder also retains a sliding-window attention (SWA) cache at every layer. It updates both forms of state for every prompt and response token.</p>
+<p>The recurrent path grows with sequence length while the number of blocks evaluated per token stays fixed. The report describes batching encoder work and independent decoder sequences, and replaying sampled histories under current parameters for reinforcement learning.</p>
+<p>Preliminary eight-layer comparisons show earlier parity learning for some RLT layouts and higher accuracy on flat modular arithmetic, with less separation on bracketed arithmetic and low accuracy on standard permutation tracking. Parity uses three initialization seeds; other tasks use one.</p>
 </div></div></section>
-<section id="overview" class="section content-section"><div class="container"><h2 class="section-title">Three design principles</h2><div class="content">
+<section id="overview" class="section content-section"><div class="container"><h2 class="section-title">Architecture and execution</h2><div class="content">
 <div class="columns"><div class="column"><article class="pillar-box"><span class="pillar-number">01 / REASONING</span><h3>Depth that grows with the sequence.</h3><p>Each token extends the recurrent path through the full decoder. After \(t\) tokens, that path traverses \(tL_D\) decoder blocks while the per-token block count stays fixed.</p></article></div>
 <div class="column"><article class="pillar-box"><span class="pillar-number">02 / HARDWARE</span><h3>Parallel work around a recurrent core.</h3><p>Batch known-token encoder work and independent decoder updates. Reuse weights and memory, and checkpoint activations while preserving the reference computation.</p></article></div>
 <div class="column"><article class="pillar-box"><span class="pillar-number">03 / RL</span><h3>One transition from sampling to replay.</h3><p>Rebuild the full history under current parameters, including prompt states and decoder SWA KV. Keep recorded behavior probabilities tied to the actual sampler.</p></article></div></div>
 <h3>The complete state matters.</h3>
-<figure class="architecture"><div class="architecture-top"><div class="arch-box"><strong>Causal encoder</strong><span>Known-token parallelism · global KV memory</span></div><div class="arch-arrow" aria-hidden="true">→</div><div class="arch-box"><strong>Recurrent decoder</strong><span>Encoder cross-attention · local decoder SWA</span></div></div>
-<div class="arch-state"><strong>Carry forward: recurrent output + decoder SWA KV</strong><p>The previous output enters the next merge. Each SWA layer reads its own recent keys and values.</p></div><figcaption>Prompt and response share one state transition. Encoder memory is prefix-restricted; decoder attention respects its local window. Neither decoder state component resets at the serving boundary.</figcaption></figure>
+<figure><a href="figure1.png" aria-label="Open full-size image: RLT state updates across prompt and response."><img src="figure1.png" alt="RLT state updates across prompt and response." width="2400" height="1079" loading="lazy" decoding="async"></a><figcaption>The merge reads the previous final output; each SWA layer reads its own cache. Global memory is restricted to the current prefix.</figcaption></figure>
 <div class="math-block">\[H_t=(s_t,C_t^D),\qquad H_0=(s_\star,\varnothing).\]</div>
 <div class="math-block">\[(s_t,C_t^D)=D_\phi\!\left(\operatorname{Merge}(e_t,s_{t-1});M_{\le t},C_{t-1}^D,t\right).\]</div>
 <div class="math-block">\[p_\Theta(x_{t+1}\mid x_{1:t})=\operatorname{softmax}\!\left(W_o\operatorname{RMSNorm}_o(s_t)\right)_{x_{t+1}}.\]</div>
 <p>Here \(M_{\le t}\) is global encoder memory, \(s_t\) is the recurrent output, and \(C_t^D\) contains layerwise decoder KV. A SWA window of \(W\) includes the current token and retains at most \(W-1\) historical entries for the next update.</p>
-<p>The concrete configuration uses <strong>48 encoder layers and 48 decoder layers</strong>, with compatible attention and FFN weights shared across stages. The temporal path traverses \(48t\) decoder blocks after \(t\) tokens. Each token executes 96 logical blocks; decoder cross-attention means these blocks do not all have equal FLOPs.</p>
+<p>Compatible encoder and decoder attention and FFN weights can be shared. A tied 48+48 layout illustrates this option in the report; the experiments below use untied eight-layer layouts.</p>
+<details class="figure-details"><summary>Detailed RLT architecture</summary>
+<figure><a href="assets/architecture-detail.png" aria-label="Open full-size image: Detailed RLT architecture with global KV, per-layer SWA, gated merge and final-output feedback."><img src="assets/architecture-detail.png" alt="Detailed RLT architecture with global KV, per-layer SWA, gated merge and final-output feedback." width="2400" height="2370" loading="lazy" decoding="async"></a><figcaption>With one memory group (G = 1), all decoder layers read the same projected global KV using their own queries. <a href="assets/architecture-detail.pdf">Vector PDF ↗</a></figcaption></figure></details>
+<h3>RLT without hidden-state feedback</h3>
+<p><strong>RLT w/o feedback</strong> removes the previous-output feedback path, learned initial state, state normalization, gated merge and feedback projection. It feeds \(z_t^0=e_t\) directly into the decoder while retaining global cross-attention and per-layer SWA.</p>
+<p>Known tokens run in parallel within each decoder layer during training and prefill; generation proceeds one token at a time. The 4+4 control was implemented after the snapshot for future matched ablations.</p>
+<details class="figure-details"><summary>Architecture of RLT w/o feedback</summary>
+<figure><a href="assets/architecture-no-feedback.png" aria-label="Open full-size image: RLT without hidden-state feedback: direct encoder input, shared global KV and layerwise SWA."><img src="assets/architecture-no-feedback.png" alt="RLT without hidden-state feedback: direct encoder input, shared global KV and layerwise SWA." width="2400" height="2370" loading="lazy" decoding="async"></a><figcaption>Each layer processes known positions together under causal masks. Layers follow depth order. <a href="assets/architecture-no-feedback.pdf">Vector PDF ↗</a></figcaption></figure></details>
+</div></div></section>
+<section id="experiments" class="section content-section"><div class="container"><h2 class="section-title">Depth-eight experiments</h2><div class="content">
+<p><strong>Snapshot: September 15, 2026, 16:11:47–16:12:10 UTC.</strong> Six architectures across six tasks, with 48 runs in total. At collection, 21 runs had reached the planned 2,000 optimizer steps and 27 were unfinished. All results use held-out validation sets at training lengths.</p>
+<p>We compare RLT 4+4, 5+3, 6+2, 7+1, 8+0 and Transformer 8 at width 512, four attention heads and global batch 512. RLT has 26.10–28.73M parameters; Transformer 8 has 25.31M. RLT 8+0 still applies the recurrent merge.</p>
+<p>Parity varies initialization seeds 42, 43 and 44 while keeping the training stream and validation set fixed. Other tasks use seed 42. Every parity mean and sample SD uses all three seeds at the same step (n = 3, ddof = 1).</p>
+<h3>Validation accuracy at shared checkpoints</h3>
+<p>Each row uses the latest step available for all six models and all required seeds within that task. Addition requires a correct greedy answer and EOS; other tasks use final-answer or final-state accuracy.</p>
+<div class="table-container" tabindex="0" role="region" aria-label="Validation accuracy (%); parity is mean ± sample SD."><table class="table results-table"><caption>Validation accuracy (%); parity is mean ± sample SD.</caption><thead><tr><th scope="col">Task</th><th scope="col">Step</th><th scope="col">RLT 4+4</th><th scope="col">RLT 5+3</th><th scope="col">RLT 6+2</th><th scope="col">RLT 7+1</th><th scope="col">RLT 8+0</th><th scope="col">Transformer 8</th></tr></thead><tbody>
+<tr><th scope="row">Addition</th><td>1000</td><td>100.00</td><td>98.44</td><td>100.00</td><td>100.00</td><td>100.00</td><td>100.00</td></tr>
+<tr><th scope="row">Parity</th><td>500</td><td>83.29 ± 28.94</td><td>83.51 ± 28.00</td><td>99.44 ± 0.98</td><td>82.77 ± 29.84</td><td>48.70 ± 2.60</td><td>48.48 ± 0.53</td></tr>
+<tr><th scope="row">Mod-5, flat</th><td>800</td><td>22.40</td><td>21.74</td><td>20.83</td><td>22.53</td><td>21.74</td><td>20.70</td></tr>
+<tr><th scope="row">Mod-5, brackets</th><td>800</td><td>37.50</td><td>36.72</td><td>36.72</td><td>40.10</td><td>37.63</td><td>35.55</td></tr>
+<tr><th scope="row">S5, swaps</th><td>1000</td><td>100.00</td><td>99.61</td><td>95.70</td><td>89.84</td><td>86.33</td><td>89.84</td></tr>
+<tr><th scope="row">S5, standard</th><td>1000</td><td>1.17</td><td>3.52</td><td>1.95</td><td>1.56</td><td>1.17</td><td>1.17</td></tr>
+</tbody></table></div>
+<figure><a href="assets/experiments-depth8/validation-curves.png" aria-label="Open full-size image: Validation accuracy across six tasks and six eight-layer models."><img src="assets/experiments-depth8/validation-curves.png" alt="Validation accuracy across six tasks and six eight-layer models." width="1994" height="1677" loading="lazy" decoding="async"></a><figcaption>Curves stop at available checkpoints. Parity bands show mean ± sample SD, clipped to the accuracy range. Vertical dotted lines mark the table checkpoints; standard S5 uses a narrower accuracy axis. <a href="assets/experiments-depth8/validation-curves.pdf">PDF ↗</a></figcaption></figure>
+<h3>Parity: learning speed and variability</h3>
+<p>At step 500, <strong>RLT 6+2 reaches 99.44 ± 0.98%</strong>, compared with <strong>48.48 ± 0.53%</strong> for Transformer 8. All three RLT 6+2 seeds reach 100% by step 600; Transformer 8 reaches 94.84 ± 3.43% at step 2,000. RLT 4+4, 5+3 and 7+1 average about 83% at step 500, with SDs of 28–30 percentage points.</p>
+<figure><a href="assets/experiments-depth8/parity-errorbars.png" aria-label="Open full-size image: Parity accuracy at step 500 with mean, sample SD and all three seeds."><img src="assets/experiments-depth8/parity-errorbars.png" alt="Parity accuracy at step 500 with mean, sample SD and all three seeds." width="1636" height="789" loading="lazy" decoding="async"></a><figcaption>Every model has seen 256,000 training examples per seed and uses the same 768 validation examples. Whiskers show sample SD and may extend beyond 100%. <a href="assets/experiments-depth8/parity-errorbars.pdf">PDF ↗</a></figcaption></figure>
+<h3>Completed mod-5 subset</h3>
+<p>These three models had completed both variants at 2,000 steps with seed 42, after 1,024,000 training examples per run.</p>
+<div class="table-container" tabindex="0" role="region" aria-label="Mod-5 validation accuracy (%) at 2,000 steps, seed 42."><table class="table"><caption>Mod-5 validation accuracy (%) at 2,000 steps, seed 42.</caption><thead><tr><th scope="col">Task</th><th scope="col">RLT 7+1</th><th scope="col">RLT 8+0</th><th scope="col">Transformer 8</th></tr></thead><tbody>
+<tr><th scope="row">Mod-5, flat</th><td>95.44</td><td>90.89</td><td>20.57</td></tr>
+<tr><th scope="row">Mod-5, brackets</th><td>78.26</td><td>75.52</td><td>79.56</td></tr>
+</tbody></table></div>
+<p>The task generators differ in operator structure and label distribution; parentheses also occupy token positions.</p>
+<h3>Training loss and individual runs</h3>
+<figure><a href="assets/experiments-depth8/training-loss.png" aria-label="Open full-size image: Unsmoothed global-batch training cross-entropy for all six tasks."><img src="assets/experiments-depth8/training-loss.png" alt="Unsmoothed global-batch training cross-entropy for all six tasks." width="1994" height="1677" loading="lazy" decoding="async"></a><figcaption>Loss is measured before each optimizer update. Parity averages three seeds at common steps; other tasks use seed 42. Logarithmic axes use a display floor of 1e-8. Compare loss within each task. <a href="assets/experiments-depth8/training-loss.pdf">PDF ↗</a></figcaption></figure>
+<details class="figure-details"><summary>Individual parity initialization seeds</summary>
+<figure><a href="assets/experiments-depth8/parity-individual-seeds.png" aria-label="Open full-size image: Parity validation curves for each initialization seed."><img src="assets/experiments-depth8/parity-individual-seeds.png" alt="Parity validation curves for each initialization seed." width="1993" height="1562" loading="lazy" decoding="async"></a><figcaption>Curves continue to each run’s last checkpoint, including later steps unavailable in the three-seed mean. RLT 5+3 seed 42 drops from 100% at step 500 to 48.05% at step 600 and recovers at step 700. <a href="assets/experiments-depth8/parity-individual-seeds.pdf">PDF ↗</a></figcaption></figure></details>
+<p>The preferred encoder–decoder split varies by task. These comparisons change feedback, attention structure, parameter count and compute together; matched RLT w/o feedback runs will isolate hidden-state feedback. Hardware throughput and RL performance remain to be measured.</p>
+<p><a href="https://github.com/yifanzhang-pro/recurrent-looped-tranformer/blob/master/assets/experiments-depth8/README.md">Experiment figures</a></p>
+<h3>Independent community experiments</h3>
+<p>Earlier state-tracking results contributed by <a href="https://x.com/AradhyeAgarwal">@AradhyeAgarwal</a> use a separate implementation with about 79K parameters, three seeds and training length 32. Evaluation uses 2,048 test programs per task and length, extending to 128 operations.</p>
+<details class="figure-details"><summary>Community length-extrapolation results</summary>
+<figure><a href="assets/rlt-state-tracking-results.png" aria-label="Open full-size image: Independent community comparison on parity and five-state transitions across sequence lengths."><img src="assets/rlt-state-tracking-results.png" alt="Independent community comparison on parity and five-state transitions across sequence lengths." width="2048" height="1280" loading="lazy" decoding="async"></a><figcaption>Points show seed means and whiskers show seed minima and maxima. RLT reaches 60.8% parity accuracy and 20.7% five-state accuracy at 128 operations; chance levels are 50% and 20%. Parameter and data budgets were matched; FLOPs were not.</figcaption></figure><p><a href="https://github.com/yifanzhang-pro/recurrent-looped-tranformer#independent-community-experiments">Per-length tables and measurement notes</a></p></details>
 </div></div></section>
 <section id="execution" class="section content-section"><div class="container"><h2 class="section-title">One execution across training and inference</h2><div class="content">
 <p>Known tokens can be encoded in a causal batch. Decoder updates still proceed in token order, constructing both recurrent outputs and decoder SWA caches.</p>
@@ -256,7 +312,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #73
 <section id="citation" class="section content-section"><div class="container"><h2 class="section-title">Citation</h2><div class="content"><p>If you find this work useful, please cite:</p>
 <pre id="cite-bibtex"><code>@techreport{zhang2026recurrentlooped,
   title  = {Recurrent Looped Transformer},
-  author = {Zhang, Yifan},
+  author = {Zhang, Yifan and Feng, Jichen and Qin, Shihan},
   year   = {2026},
   month  = sep,
   url    = {https://github.com/yifanzhang-pro/recurrent-looped-tranformer}
@@ -264,7 +320,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #73
 <button type="button" id="copy-cite" class="button">Copy BibTeX</button><p id="copy-status" role="status" aria-live="polite"></p>
 </div></div></section>
 </main>
-<footer class="footer"><div class="container"><div class="content has-text-centered"><p><a href="#abstract">Abstract</a> &nbsp;·&nbsp; <a href="#overview">Overview</a> &nbsp;·&nbsp; <a href="#citation">Citation</a> &nbsp;·&nbsp; <a href="https://github.com/yifanzhang-pro/recurrent-looped-tranformer">GitHub</a> &nbsp;·&nbsp; <a href="https://yfz.ai/blog">Yifan's Blog</a></p><p>&copy; 2026 Yifan Zhang. All rights reserved.</p></div></div></footer>
+<footer class="footer"><div class="container"><div class="content has-text-centered"><p><a href="#abstract">Abstract</a> &nbsp;·&nbsp; <a href="#overview">Architecture</a> &nbsp;·&nbsp; <a href="#experiments">Results</a> &nbsp;·&nbsp; <a href="#citation">Citation</a> &nbsp;·&nbsp; <a href="https://github.com/yifanzhang-pro/recurrent-looped-tranformer">GitHub</a> &nbsp;·&nbsp; <a href="https://yfz.ai/blog">Yifan's Blog</a></p><p>&copy; 2026 Yifan Zhang. All rights reserved.</p></div></div></footer>
 <script>
 const navbar=document.querySelector('.navbar'),burger=document.querySelector('.navbar-burger'),menu=document.getElementById('navbarMenu');
 function setMenu(open){
