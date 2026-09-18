@@ -5,15 +5,15 @@
 
 ### Recurrent computation across prompt and response
 
-**Recurrent Looped Transformer (RLT)** passes the decoder's final hidden state to the next token, together with that token's causal encoder representation.
+**Recurrent Looped Transformer (RLT-1)** passes the decoder's final hidden state to the next token, together with that token's causal encoder representation.
 The decoder reads encoder-derived global KV memory and maintains a sliding-window attention (SWA) cache at every layer.
 The same update runs over prompt and response tokens.
 
 **Authors:** [Yifan Zhang](https://yifzhang.com), Jichen Feng, Shihan Qin
 
-**Report:** September 12, 2026 · **Updated:** September 15, 2026
+**Report:** September 12, 2026 · **Updated:** September 17, 2026
 
-[[Paper](./Recurrent_Looped_Transformer.pdf)] [[Project website](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)] [[Experiments](#depth-eight-experiments)]
+[[Paper](./Recurrent_Looped_Transformer.pdf)] [[中文论文](./Recurrent_Looped_Transformer_ZH.pdf)] [[Project website](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)] [[Experiments](#depth-eight-experiments)]
 
 ![RLT recurrence across the last prompt tokens and the first response token.](figure1.png)
 
@@ -42,92 +42,129 @@ After $t$ tokens, the recurrent path traverses $tL_D$ decoder blocks while the n
 Compatible encoder and decoder attention and FFN weights can be shared; a tied 48+48 layout illustrates this option in the report.
 The experiments below use untied eight-layer layouts.
 
-### RLT without hidden-state feedback
+### RLT-0: no hidden-state feedback
 
-**RLT w/o feedback** removes the previous-output feedback path, learned initial state, state normalization, gated merge, and feedback projection.
+**RLT-0** removes the previous-output feedback path, learned initial state, state normalization, gated merge, and feedback projection.
 The decoder receives $z_t^0=e_t$ directly and retains global cross-attention and layerwise SWA.
 Known tokens can run in parallel within each decoder layer during training and prefill; generation proceeds one token at a time.
-The 4+4 control was implemented after this snapshot for future matched ablations and has no results in the tables below.
+The 4+4 control is implemented for matched ablations and has no results in the tables below.
 
 ![RLT without hidden-state feedback: encoder outputs feed the decoder directly, with global KV and per-layer SWA retained.](assets/architecture-no-feedback.png)
 
 [Control architecture PDF](assets/architecture-no-feedback.pdf)
 
+### RLT-2: chunk-level feedback
+
+RLT-2 is a proposed extension that holds the feedback state fixed within a chunk and updates it from the last decoder output at a complete chunk boundary.
+Known positions can run together within each decoder layer, using causal SWA and prefix-restricted encoder memory.
+Chunk boundaries are anchored at BOS and continue across prompt, response and message boundaries; a partial chunk preserves the previous boundary state.
+With chunk size B = 1, the equations recover RLT-1 at the same weights.
+The paper specifies the algorithms and execution costs; the reported experiments contain no RLT-2 training or throughput results.
+
+![RLT-0, RLT-1 and RLT-2 decoder schedules for known tokens.](assets/rlt2/chunk-schedule.png)
+
+[Chunk architecture](assets/rlt2/architecture-chunk.png) · [Schedule PDF](assets/rlt2/chunk-schedule.pdf)
+
 ## Depth-eight experiments
 
-The September 15, 2026 snapshot (16:11:47–16:12:10 UTC) compares **RLT 4+4, 5+3, 6+2, 7+1, 8+0 and Transformer 8** across six tasks.
-Of 48 runs, 21 had reached the planned 2,000 optimizer steps; 27 were unfinished.
-All results measure held-out validation accuracy at training lengths.
+The September 17, 2026 snapshot compares **RLT-1 4+4, 5+3, 6+2, 7+1, 8+0 and Transformer 8** on six algorithmic tasks.
+All **108 runs** completed **2,000 optimizer steps**, using initialization seeds **42, 43 and 44 for every task**.
+Training examples and held-out sets are fixed across initializations.
+All aggregates report **mean ± sample standard deviation** (n = 3, ddof = 1).
 
-Models use width 512, FFN width 1,365, four attention heads, global batch 512 and the same AdamW schedule.
-RLT uses SWA window 8, one shared encoder-memory group, feedback scale 0.1 and TBPTT 128, which covers every training sequence here.
-RLT models have 26.10–28.73M parameters; Transformer 8 has 25.31M.
-RLT 8+0 has no decoder blocks and still applies the recurrent merge.
-Parity varies initialization seeds 42, 43 and 44 with the same training stream and validation set; other tasks use seed 42.
+Models use width 512, FFN width 1,365, four attention heads, global batch 512, microbatch 32 and the same AdamW schedule.
+RLT-1 uses an SWA window of eight, one shared encoder-memory group, feedback scale 0.1 and TBPTT 128, which covers every training sequence and cuts no gradients here.
+RLT-1 has 26.10–28.73M parameters; Transformer 8 has 25.31M.
+The 8+0 variant has no decoder blocks but still applies the gated recurrent merge.
 
-### Validation accuracy at shared checkpoints
+### Validation accuracy after 2,000 steps
 
-Each row compares all six models at the latest step available for every required run within that task.
-Values are percentages; parity is mean ± sample SD across all three initializations ($n=3$, ddof=1).
-Addition requires a correct greedy answer and EOS; the other tasks use final-answer or final-state accuracy.
+Values are percentages, reported as mean ± sample SD across three initializations.
+Each run has consumed 1,024,000 training examples.
+Addition measures **teacher-forced answer-token accuracy**, including answer formatting and EOS, excluding prompt and padding positions.
+Parity and mod-5 score the final label; S5 scores the final state.
 
-| Task | Step | RLT 4+4 | RLT 5+3 | RLT 6+2 | RLT 7+1 | RLT 8+0 | Transformer 8 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Addition | 1000 | 100.00 | 98.44 | 100.00 | 100.00 | 100.00 | 100.00 |
-| Parity | 500 | 83.29 ± 28.94 | 83.51 ± 28.00 | 99.44 ± 0.98 | 82.77 ± 29.84 | 48.70 ± 2.60 | 48.48 ± 0.53 |
-| Mod-5, flat | 800 | 22.40 | 21.74 | 20.83 | 22.53 | 21.74 | 20.70 |
-| Mod-5, brackets | 800 | 37.50 | 36.72 | 36.72 | 40.10 | 37.63 | 35.55 |
-| S5, swaps | 1000 | 100.00 | 99.61 | 95.70 | 89.84 | 86.33 | 89.84 |
-| S5, standard | 1000 | 1.17 | 3.52 | 1.95 | 1.56 | 1.17 | 1.17 |
+| Task | RLT-1 4+4 | RLT-1 5+3 | RLT-1 6+2 | RLT-1 7+1 | RLT-1 8+0 | Transformer 8 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Addition | 100.00±0.00 | 100.00±0.00 | 100.00±0.00 | 100.00±0.00 | 100.00±0.00 | 100.00±0.00 |
+| Parity | 100.00±0.00 | 100.00±0.00 | 100.00±0.00 | 100.00±0.00 | 98.83±1.92 | 94.84±3.43 |
+| Mod 5, no brackets | 45.36±46.43 | 94.18±7.29 | 69.62±33.01 | 70.01±43.15 | 60.33±35.70 | 64.02±37.64 |
+| Mod 5, brackets | 70.53±10.75 | 74.35±6.71 | 74.87±3.72 | 74.78±3.01 | 75.17±6.78 | 73.87±9.07 |
+| S5, swaps | 100.00±0.00 | 100.00±0.00 | 100.00±0.00 | 99.35±0.81 | 99.61±0.68 | 99.09±0.23 |
+| S5, standard | 0.78±0.68 | 2.47±1.26 | 2.21±1.48 | 2.08±0.98 | 1.82±1.19 | 0.52±0.23 |
 
-![Validation accuracy curves across addition, parity, flat and bracketed mod-5, and swaps and standard S5.](assets/experiments-depth8/validation-curves.png)
+![Validation accuracy on six tasks, mean and sample SD across three initialization seeds.](assets/experiments-depth8/validation-curves.png)
 
-Curves stop at available checkpoints.
-Parity bands show mean ± sample SD across three seeds and are clipped to the accuracy range.
-Vertical dotted lines mark the shared checkpoints in the table; standard S5 uses a narrower accuracy scale.
+All curves extend through step 2,000. Bands show sample SD, clipped to the accuracy range. Standard S5 uses a narrower vertical scale.
+[PDF](assets/experiments-depth8/validation-curves.pdf)
 
-### Parity: learning speed and variability
+### Learning speed and initialization
 
-At step 500, RLT 6+2 reaches **99.44 ± 0.98%**, compared with **48.48 ± 0.53%** for Transformer 8.
-All three RLT 6+2 seeds reach 100% by step 600; Transformer 8 reaches 94.84 ± 3.43% at step 2,000.
-RLT 4+4, 5+3 and 7+1 average about 83% at step 500, with SDs of 28–30 percentage points.
+At step 500, RLT-1 6+2 reaches **99.44 ± 0.98%** parity accuracy, compared with **48.48 ± 0.53%** for Transformer 8.
+All three 6+2 seeds reach 100% by step 600.
+At step 2,000, splits 4+4 through 7+1 reach 100% in all three seeds, while Transformer 8 reaches 94.84 ± 3.43%.
 
-![Parity accuracy at 500 steps, with mean, sample SD and all three initialization seeds for each model.](assets/experiments-depth8/parity-errorbars.png)
+![Parity accuracy at steps 500 and 2,000, with individual seeds, means and sample SD.](assets/experiments-depth8/parity-errorbars.png)
 
-Every model has seen 256,000 training examples per seed and uses the same 768 validation examples.
-Whiskers show sample SD and may extend beyond 100%.
+Both panels use the same 768 validation examples. They correspond to 256,000 and 1,024,000 training examples per seed. SD whiskers can extend beyond 100%.
+[PDF](assets/experiments-depth8/parity-errorbars.pdf)
 
-### Completed mod-5 subset
+Flat mod-5 varies strongly with initialization: RLT-1 5+3 reaches **94.18 ± 7.29%**, compared with **64.02 ± 37.64%** for Transformer 8.
+The three 4+4 seeds score 17.58%, 19.53% and 98.96%.
+Bracketed mod-5 model means are closer, spanning 70.53–75.17% for RLT-1 versus 73.87 ± 9.07% for the Transformer.
+The generators differ in operator structure and label distribution; parentheses also occupy token positions.
 
-At 2,000 steps, seed 42, these three models had completed both variants after 1,024,000 training examples per run.
-Values are validation accuracy (%).
+### Length generalization
 
-| Task | RLT 7+1 | RLT 8+0 | Transformer 8 |
-| --- | ---: | ---: | ---: |
-| Mod-5, flat | 95.44 | 90.89 | 20.57 |
-| Mod-5, brackets | 78.26 | 75.52 | 79.56 |
+Each run selects its lowest in-distribution validation-loss checkpoint over the full training history, taking the earliest step on ties.
+Test results do not enter selection.
+At every task and length, all models and seeds receive the same 256 addition pairs or 1,024 formal-task sequences.
+The evaluation covers **846 model–seed–length combinations**, summarized as 282 three-seed means and sample SDs.
 
-The task generators differ in operator structure and label distribution; parentheses also occupy token positions.
+- **Parity:** 5+3 and 7+1 retain **100% accuracy at 256 bits in every seed**; Transformer 8 reaches 50.07 ± 1.63%.
+- **Swaps-S5:** at 512 operations, 4+4 reaches **55.70 ± 25.78% final-state accuracy** and **91.16 ± 6.09% prefix-token accuracy**, versus 0.85 ± 0.30% and 9.33 ± 0.11% for Transformer 8.
+- **Addition:** 7+1 reaches 68.05 ± 3.64% teacher-forced token accuracy at nine digits per operand. At 32 digits, all model means fall to 14.89–16.84%.
+- **Modular arithmetic:** flat mod-5 approaches its 20% uniform reference at length 255; bracketed mod-5 also loses accuracy at longer lengths.
 
-### Training loss and individual parity runs
+![Length generalization on all six tasks with three-seed error bars.](assets/experiments-depth8/generalization-depth08-primary.png)
 
-![Unsmoothed global-batch training cross-entropy for all six tasks.](assets/experiments-depth8/training-loss.png)
+Gray regions mark training lengths. Addition uses teacher-forced answer tokens; other tasks use final labels or states. Error bars show sample SD across initialization seeds.
+[PDF](assets/experiments-depth8/generalization-depth08-primary.pdf)
 
-Training loss is measured before the optimizer update.
-Parity averages all three seeds at common steps; other tasks use seed 42.
-Values below 1e-8 are displayed at 1e-8 on the logarithmic axes.
-Compare losses within each task, since supervision differs across tasks.
+#### Accuracy at the longest tested length
 
-![Parity validation accuracy for each initialization seed, including later checkpoints.](assets/experiments-depth8/parity-individual-seeds.png)
+All entries are percentages, mean ± sample SD across three initializations.
+Addition lengths count digits per operand; formal-task lengths count input symbols or operations, excluding boundary markers.
 
-Individual curves continue to each run's last checkpoint, including steps beyond the end of the three-seed mean.
-For example, RLT 5+3 seed 42 drops from 100% at step 500 to 48.05% at step 600 and recovers at step 700.
+| Task (test length) | RLT-1 4+4 | RLT-1 5+3 | RLT-1 6+2 | RLT-1 7+1 | RLT-1 8+0 | Transformer 8 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Addition (32) | 15.30±0.44 | 14.89±2.27 | 15.74±1.58 | 15.59±1.57 | 15.31±0.93 | 16.84±1.45 |
+| Parity (256) | 66.76±28.78 | 100.00±0.00 | 84.05±27.63 | 100.00±0.00 | 68.91±27.39 | 50.07±1.63 |
+| Mod 5, no brackets (255) | 18.00±0.39 | 20.57±0.62 | 21.42±0.49 | 19.34±0.54 | 20.44±0.91 | 20.35±2.01 |
+| Mod 5, brackets (256) | 25.20±1.71 | 25.81±4.34 | 21.58±1.86 | 22.04±1.72 | 22.30±1.13 | 25.07±2.05 |
+| S5, standard (512) | 1.24±0.30 | 1.43±0.60 | 1.30±0.31 | 0.88±0.20 | 0.72±0.31 | 0.81±0.06 |
+| S5, swaps (512) | 55.70±25.78 | 34.86±6.10 | 22.14±20.95 | 0.85±0.06 | 0.85±0.20 | 0.85±0.30 |
 
-The preferred encoder–decoder split varies by task.
-The comparisons change feedback, attention structure, parameter count and compute together; matched RLT w/o feedback runs will isolate hidden-state feedback.
-Hardware throughput and RL performance remain to be measured.
+![S5 length generalization under prefix-token, final-state and whole-sequence scoring.](assets/experiments-depth8/generalization-depth08-s5-metrics.png)
 
-[Experiment figures](assets/experiments-depth8/README.md)
+Whole-sequence accuracy requires every prefix prediction to be correct. Every model uses the same 1,024 sequences at each length. Each panel labels its vertical scale.
+[PDF](assets/experiments-depth8/generalization-depth08-s5-metrics.pdf)
+
+The preferred encoder–decoder split depends on the task.
+These comparisons change feedback, attention structure, parameter count and compute together; matched RLT-0 runs are needed to isolate hidden-state feedback.
+Hardware-throughput and RL performance have not been measured in this study.
+
+### Supplementary results
+
+[Training loss](assets/experiments-depth8/training-loss.png), [individual parity seeds](assets/experiments-depth8/parity-individual-seeds.png), [fixed-length token accuracy](assets/experiments-depth8/validation-token-accuracy.png), and [token-level length generalization](assets/experiments-depth8/generalization-depth08-token-accuracy.png) provide additional diagnostics.
+Training loss is unsmoothed and measured before the optimizer update; all six tasks use three seeds.
+
+The paper also reports a separate **seed-42 sixteen-layer addition study** from September 16, 2026, with four unfinished runs.
+It evaluates greedy exact-answer accuracy and teacher-forced token accuracy on shared operand pairs.
+All nine RLT-1 layouts produce zero exact answers at every tested width from nine to 32 digits; Transformer 16 produces 3/256 at nine digits and zero at longer widths.
+See the [sixteen-layer figure](assets/arithmetic-generalization-depth16/arithmetic-generalization-depth16-series.png) and [4+4 versus 8+8 comparison](assets/arithmetic-generalization-depth16/arithmetic-generalization-rlt44-vs88.png) for checkpoint steps and unequal training budgets.
+
+[Experiment figures and protocol](assets/experiments-depth8/README.md)
 
 ## One execution across training and inference
 
@@ -175,6 +212,7 @@ RLT fits both tasks at the training length, but accuracy declines on longer sequ
 ## Resources
 
 - [Updated paper](./Recurrent_Looped_Transformer.pdf)
+- [中文论文](./Recurrent_Looped_Transformer_ZH.pdf)
 - [Project website](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)
 - [Experiment figures](assets/experiments-depth8/README.md)
 - [Prefill–decode kernel mismatch note](https://github.com/yifanzhang-pro/Pretraining-RL-Science/blob/master/Prefill_Decode_Kernel_Mismatch.pdf)

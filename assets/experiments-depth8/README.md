@@ -1,24 +1,32 @@
 # Depth-eight experiment figures
 
-These figures accompany the September 15, 2026 revision of [Recurrent Looped Transformer](../../Recurrent_Looped_Transformer.pdf).
-Source manuscript revision: `b1f135c`.
-The frozen snapshot was collected on September 15, 2026, 16:11:47–16:12:10 UTC.
-Of 48 runs, 21 had reached 2,000 steps and 27 were unfinished.
+These figures accompany the September 17, 2026 paper revision.
+Source manuscript commit: [94d36d1](https://github.com/yifanzhang-pro/Recurrent-Looped-Transformer-Overleaf/commit/94d36d1).
+The public English and Chinese PDFs include Figure 1 on page one.
 
-All six models have eight logical layers and width 512, with global batch 512.
-Parity uses initialization seeds 42, 43 and 44 on a fixed data stream and validation set.
-Every parity aggregate requires all three seeds at the same step and reports mean ± sample SD (ddof=1).
-Other tasks use seed 42.
-Results use held-out validation sets at training lengths.
+All 108 runs completed 2,000 steps: six architectures, six tasks and initialization seeds 42, 43, 44.
+Training and held-out examples are fixed across initializations.
+Every aggregate reports mean ± sample SD (n = 3, ddof = 1).
+Addition uses teacher-forced answer-token accuracy, including answer formatting and EOS and excluding prompt/padding positions.
+Formal-task primary metrics score the final label or state; S5 token accuracy scores each prefix state.
+
+Length generalization selects each run's minimum in-distribution validation-loss checkpoint, with earliest-step tie breaking.
+All models and seeds share each test set: 256 addition pairs or 1,024 formal-task sequences per length.
+The study covers 846 model–seed–length combinations and 282 three-seed aggregates.
+Error bars measure initialization variability on these shared examples.
 
 | Figure | PNG | PDF |
 | --- | --- | --- |
-| Validation accuracy | [PNG](validation-curves.png) | [PDF](validation-curves.pdf) |
-| Parity at step 500 | [PNG](parity-errorbars.png) | [PDF](parity-errorbars.pdf) |
-| Individual parity seeds | [PNG](parity-individual-seeds.png) | [PDF](parity-individual-seeds.pdf) |
-| Training loss | [PNG](training-loss.png) | [PDF](training-loss.pdf) |
+| generalization-depth08-primary | [PNG](generalization-depth08-primary.png) | [PDF](generalization-depth08-primary.pdf) |
+| generalization-depth08-s5-metrics | [PNG](generalization-depth08-s5-metrics.png) | [PDF](generalization-depth08-s5-metrics.pdf) |
+| generalization-depth08-token-accuracy | [PNG](generalization-depth08-token-accuracy.png) | [PDF](generalization-depth08-token-accuracy.pdf) |
+| parity-errorbars | [PNG](parity-errorbars.png) | [PDF](parity-errorbars.pdf) |
+| parity-individual-seeds | [PNG](parity-individual-seeds.png) | [PDF](parity-individual-seeds.pdf) |
+| training-loss | [PNG](training-loss.png) | [PDF](training-loss.pdf) |
+| validation-curves | [PNG](validation-curves.png) | [PDF](validation-curves.pdf) |
+| validation-token-accuracy | [PNG](validation-token-accuracy.png) | [PDF](validation-token-accuracy.pdf) |
 
-Addition requires an exact greedy answer and EOS.
-Formal tasks report final-answer or final-state accuracy; S5 prefix accuracy is a separate metric.
-The shared steps are addition 1,000, parity 500, flat and bracketed mod-5 800, and swaps and standard S5 1,000.
-Training-loss curves show unsmoothed pre-update global-batch loss, with a display floor of 1e-8 on logarithmic axes.
+Parity error bars compare steps 500 and 2,000.
+Training curves extend through step 2,000; loss curves are unsmoothed and measured before each optimizer update, with a logarithmic display floor of 1e-8.
+Fixed-length token accuracy uses length 33 for flat mod-5 and 32 for the other formal tasks.
+The sixteen-layer addition figures in the neighboring directory are a separate seed-42 snapshot with four unfinished runs; they are not part of the three-seed aggregates above.
