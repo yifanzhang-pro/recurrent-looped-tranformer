@@ -29,4 +29,4 @@ Error bars measure initialization variability on these shared examples.
 Parity error bars compare steps 500 and 2,000.
 Training curves extend through step 2,000; loss curves are unsmoothed and measured before each optimizer update, with a logarithmic display floor of 1e-8.
 Fixed-length token accuracy uses length 33 for flat mod-5 and 32 for the other formal tasks.
-The sixteen-layer addition figures in the neighboring directory are a separate seed-42 snapshot with four unfinished runs; they are not part of the three-seed aggregates above.
+The [sixteen-layer and feedback-variant results](../results-refresh-20260920/README.md) are a separate September 20 snapshot using seed 42. All ten addition runs are complete; parity 8+8 and two mod-5 RLT-1 4+4 runs remain ongoing. They are not part of the three-seed aggregates above.

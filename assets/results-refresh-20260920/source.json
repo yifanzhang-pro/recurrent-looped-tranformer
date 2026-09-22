@@ -1,0 +1,112 @@
+{
+  "repository": "https://github.com/yifanzhang-pro/Recurrent-Looped-Transformer-Overleaf",
+  "commit": "f3102f63b905235ed228e6dfaa58c96fa71d8c81",
+  "snapshot": "2026-09-20",
+  "files": [
+    {
+      "path": "arithmetic-generalization-depth16-series.pdf",
+      "source": "figures/results-refresh-20260919/arithmetic-generalization-depth16-series.pdf",
+      "sha256": "9bd5acb01a6a7703c23304e5c05facd713dc5db9c76bbda815b5edeb8c377411"
+    },
+    {
+      "path": "arithmetic-generalization-depth16-series.png",
+      "source": "figures/results-refresh-20260919/arithmetic-generalization-depth16-series.png",
+      "sha256": "fccaa03e0ac4a8b1127956bca1423e32b130bd01f68e5f9c7ab5db9ed788b8cd"
+    },
+    {
+      "path": "arithmetic-generalization-depth16-series.svg",
+      "source": "figures/results-refresh-20260919/arithmetic-generalization-depth16-series.svg",
+      "sha256": "caf82e3b45ba7dd8b7076ca71446e10e360ab2c68305aedd16bd694ffe2108c9"
+    },
+    {
+      "path": "arithmetic-generalization-rlt44-vs88.pdf",
+      "source": "figures/results-refresh-20260919/arithmetic-generalization-rlt44-vs88.pdf",
+      "sha256": "bad85c7007a03da14273ff5880fff04a028f41d63be5224de103c8575472b22f"
+    },
+    {
+      "path": "arithmetic-generalization-rlt44-vs88.png",
+      "source": "figures/results-refresh-20260919/arithmetic-generalization-rlt44-vs88.png",
+      "sha256": "fc67ea01de80e2f128c77e9427241d9062d02a753cee14b979771f36a1a07855"
+    },
+    {
+      "path": "arithmetic-generalization-rlt44-vs88.svg",
+      "source": "figures/results-refresh-20260919/arithmetic-generalization-rlt44-vs88.svg",
+      "sha256": "41d4bd57460003444bf2cf80f714fd54063f953da5a40c70a4efe2b227a313eb"
+    },
+    {
+      "path": "mod5-no-brackets-generalization.pdf",
+      "source": "figures/results-refresh-20260919/mod5-no-brackets-generalization.pdf",
+      "sha256": "5747b1bc7022c88f8915558a0e2591beae30f64728da4dac82921a0c17c78d76"
+    },
+    {
+      "path": "mod5-no-brackets-generalization.png",
+      "source": "figures/results-refresh-20260919/mod5-no-brackets-generalization.png",
+      "sha256": "886a20a50a9bb36f547645cf97a373968378d8c943e7a3123054b33360409b26"
+    },
+    {
+      "path": "mod5-no-brackets-generalization.svg",
+      "source": "figures/results-refresh-20260919/mod5-no-brackets-generalization.svg",
+      "sha256": "d53e2266dc0c14a4a93b6b254318da4a94f17f20a6fc59d2c930f05ad2b6e677"
+    },
+    {
+      "path": "mod5-no-brackets-validation.pdf",
+      "source": "figures/results-refresh-20260919/mod5-no-brackets-validation.pdf",
+      "sha256": "e029e3864564be8475d31b7c90175c3aa80a2d15b3cc91544d057a5f46acb802"
+    },
+    {
+      "path": "mod5-no-brackets-validation.png",
+      "source": "figures/results-refresh-20260919/mod5-no-brackets-validation.png",
+      "sha256": "e79a0d6e27fb480297cb0e9788ac1238cf1ecc9c32071faacdd7fcf4a8099aca"
+    },
+    {
+      "path": "mod5-no-brackets-validation.svg",
+      "source": "figures/results-refresh-20260919/mod5-no-brackets-validation.svg",
+      "sha256": "8d30b6edbde703d0e3e134ae912fb11ac4caa9cf35d8b6d9d9966739c274203d"
+    },
+    {
+      "path": "mod5-with-brackets-generalization.pdf",
+      "source": "figures/results-refresh-20260919/mod5-with-brackets-generalization.pdf",
+      "sha256": "be0bec42b4d41b1d089736552b8424b72bb6e0d7aefd0404619496c07b477e36"
+    },
+    {
+      "path": "mod5-with-brackets-generalization.png",
+      "source": "figures/results-refresh-20260919/mod5-with-brackets-generalization.png",
+      "sha256": "c023634baf4950be5900c76d654204896fa782b585127a3233a6c8a076c421fd"
+    },
+    {
+      "path": "mod5-with-brackets-generalization.svg",
+      "source": "figures/results-refresh-20260919/mod5-with-brackets-generalization.svg",
+      "sha256": "48812bdbdcd305866f3762a4983f2a143794c5c075aacfef46fc09eb738d9457"
+    },
+    {
+      "path": "mod5-with-brackets-validation.pdf",
+      "source": "figures/results-refresh-20260919/mod5-with-brackets-validation.pdf",
+      "sha256": "94f9caabab6140705a795ccffd496ede7d3a42a4a0e3d1dd9ffd8534d371f2ab"
+    },
+    {
+      "path": "mod5-with-brackets-validation.png",
+      "source": "figures/results-refresh-20260919/mod5-with-brackets-validation.png",
+      "sha256": "e314da0286306db0f7baceb4e46045f3ce339e5e5f72040f161d3b451af644bf"
+    },
+    {
+      "path": "mod5-with-brackets-validation.svg",
+      "source": "figures/results-refresh-20260919/mod5-with-brackets-validation.svg",
+      "sha256": "c62db9e92c40f9402db42f7b3ee58a0e1da85f399f00a2d218da6eb35d4b7e36"
+    },
+    {
+      "path": "parity-generalization-depth16-series.pdf",
+      "source": "figures/results-refresh-20260919/parity-generalization-depth16-series.pdf",
+      "sha256": "f5cb1d180292d59c90603c8ffd2469fa8c70459a57320326b54b529b9e56651e"
+    },
+    {
+      "path": "parity-generalization-depth16-series.png",
+      "source": "figures/results-refresh-20260919/parity-generalization-depth16-series.png",
+      "sha256": "5cb569ea31e617c3b17ea97ee54f60daa4443782be3c816d0fe208a04f062c07"
+    },
+    {
+      "path": "parity-generalization-depth16-series.svg",
+      "source": "figures/results-refresh-20260919/parity-generalization-depth16-series.svg",
+      "sha256": "bdb6b86a8eaab30e834f2c11999fbf6a2047de10c1b04a674e46872f2fd78da2"
+    }
+  ]
+}
