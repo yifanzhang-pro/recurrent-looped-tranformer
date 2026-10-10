@@ -4,15 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Recurrent Looped Transformer</title>
-<meta name="description" content="Recurrent Looped Transformer: architecture, encoder–decoder depth allocation, feedback-interval controls, and consistent policy replay. arXiv:2610.07591. Updated October 7, 2026.">
+<meta name="description" content="Recurrent Looped Transformer: architecture, encoder–decoder depth allocation, feedback-interval controls, and consistent policy replay. arXiv:2610.07591. Project updated October 10, 2026.">
 <meta name="citation_author" content="Yifan Zhang">
 <meta name="citation_author" content="Jichen Feng">
 <meta name="citation_author" content="Shihan Qin">
+<meta name="citation_author" content="Sun-Yuan Kung">
+<meta name="citation_author" content="Mengdi Wang">
 <meta name="citation_title" content="Recurrent Looped Transformer">
 <meta name="citation_publication_date" content="2026/10/06">
 <meta name="citation_doi" content="10.48550/arXiv.2610.07591">
 <meta name="citation_abstract_html_url" content="https://arxiv.org/abs/2610.07591">
-<meta name="citation_pdf_url" content="https://arxiv.org/pdf/2610.07591">
+<meta name="citation_pdf_url" content="https://yifanzhang-pro.github.io/recurrent-looped-tranformer/Recurrent_Looped_Transformer.pdf">
 <meta property="og:title" content="Recurrent Looped Transformer">
 <meta property="og:description" content="Recurrent computation across prompt and response, with three-seed experiments on depth allocation and feedback frequency.">
 <meta property="og:type" content="website">
@@ -203,7 +205,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #73
 #copy-status{font-size:.85rem;min-height:1.5em;color:var(--ink-3)}
 .navbar-brand{justify-content:space-between}.navbar-burger{z-index:220}
 @media(max-width:820px){
-.navbar-brand{width:100%}.navbar.nav-expanded{background:#0a0a0a}
+.navbar-brand{width:100%}.navbar.nav-expanded{background:#0a0a0a;backdrop-filter:none;-webkit-backdrop-filter:none}
 .navbar.nav-expanded .navbar-brand .navbar-item,.navbar.nav-expanded .navbar-menu .navbar-item{color:white}
 .navbar-menu{inset:68px 0 0}.navbar-end{gap:1.3rem}
 .architecture-top{grid-template-columns:1fr}.arch-arrow{transform:rotate(90deg);text-align:center}
@@ -231,9 +233,9 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #73
 <p class="eyebrow">Hidden-state recurrence · Depth allocation · Length generalization</p>
 <h1 class="title">Recurrent Looped<br>Transformer</h1>
 <p class="subtitle is-hero-subtitle"><span class="highlight">Recurrent computation across prompt and response.</span><br>Six algorithmic tasks, encoder–decoder depth allocation, and feedback-interval controls.</p>
-<div class="authors-list"><a href="https://yifzhang.com">Yifan Zhang</a><sup>1</sup> &nbsp;·&nbsp; Jichen Feng<sup>2</sup> &nbsp;·&nbsp; Shihan Qin<sup>2</sup></div>
-<div class="affiliations"><sup>1</sup>Princeton University &nbsp;·&nbsp; <sup>2</sup>University of Pennsylvania<br>arXiv:2610.07591 &nbsp;·&nbsp; Submitted October 6, 2026 &nbsp;·&nbsp; Updated October 7, 2026</div>
-<div class="hero-links"><a class="button primary" href="https://arxiv.org/abs/2610.07591">arXiv ↗</a><a class="button" href="https://arxiv.org/pdf/2610.07591">PDF ↗</a><a class="button" href="https://github.com/yifanzhang-pro/recurrent-looped-tranformer">GitHub ↗</a><a class="button" href="#experiments">Experimental results ↓</a><a class="button" href="#citation">Cite this work</a></div>
+<div class="authors-list"><a href="https://yifzhang.com">Yifan Zhang</a><sup>1</sup> &nbsp;·&nbsp; Jichen Feng<sup>2</sup> &nbsp;·&nbsp; Shihan Qin<sup>2</sup> &nbsp;·&nbsp; Sun-Yuan Kung<sup>1</sup> &nbsp;·&nbsp; Mengdi Wang<sup>1</sup></div>
+<div class="affiliations"><sup>1</sup>Princeton University &nbsp;·&nbsp; <sup>2</sup>University of Pennsylvania<br>arXiv:2610.07591 &nbsp;·&nbsp; Submitted October 6, 2026 &nbsp;·&nbsp; Project updated October 10, 2026</div>
+<div class="hero-links"><a class="button primary" href="https://arxiv.org/abs/2610.07591">arXiv ↗</a><a class="button" href="Recurrent_Looped_Transformer.pdf">Latest PDF ↗</a><a class="button" href="https://github.com/yifanzhang-pro/recurrent-looped-tranformer">GitHub ↗</a><a class="button" href="#experiments">Experimental results ↓</a><a class="button" href="#slides">Slides ↓</a><a class="button" href="#citation">Cite this work</a></div>
 <div style="margin-top:1.4rem"><span class="pill">Hidden-state feedback</span><span class="pill">Feedback interval</span><span class="pill">Three-seed experiments</span></div>
 </div></div></header>
 <main id="main">
@@ -253,6 +255,26 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #73
 <p>Compatible encoder and decoder attention and FFN weights can be shared. A tied 48+48 layout illustrates this option in the report; the experiments below use untied eight- and sixteen-layer layouts.</p>
 <details class="figure-details"><summary>Detailed RLT architecture</summary>
 <figure><a href="assets/architecture-detail.png" aria-label="Open full-size image: Detailed RLT architecture with global KV, per-layer SWA, gated merge and final-output feedback."><img src="assets/architecture-detail.png" alt="Detailed RLT architecture with global KV, per-layer SWA, gated merge and final-output feedback." width="2400" height="2370" loading="lazy" decoding="async"></a><figcaption>With one memory group (G = 1), all decoder layers read the same projected global KV using their own queries. <a href="assets/architecture-detail.pdf">Vector PDF ↗</a></figcaption></figure></details>
+<h3 id="state-space" style="scroll-margin-top:88px">RNN and state-space interpretation</h3>
+<p>RLT-1 is an RNN whose recurrent cell is the gated merge followed by the full Transformer decoder.
+The cell reuses its parameters across tokens, while its decoder layers may have distinct parameters.
+For a decoder state \(H=(s,C^D)\), encoder representation \(e\), and encoder memory \(M\), define</p>
+<div class="math-block">\[\begin{gathered}
+\mathcal F_\Theta(H;e,M,t):=\\
+D_\phi\!\left(\operatorname{Merge}(e,s);M,C^D,t\right),\\[6pt]
+\mathcal G_\Theta(H):=\\
+\operatorname{softmax}\!\left(W_o\operatorname{RMSNorm}_o(s)\right).
+\end{gathered}\]</div>
+<p>The nonlinear state-space equations are</p>
+<div class="math-block">\[\begin{aligned}
+H_t&=\mathcal F_\Theta(H_{t-1};e_t,M_{\le t},t),\\
+p_\Theta(\,\cdot\mid x_{1:t})&=\mathcal G_\Theta(H_t).
+\end{aligned}\]</div>
+<p>The transition updates both the feedback vector and decoder KV caches.
+At fixed width, decoder depth, and SWA window, this decoder state has bounded size, while the encoder memory grows with sequence length.</p>
+<p>The SSM cores of S4 and Mamba are affine in the previous state once the layer inputs are fixed.
+S4 uses time invariance for convolutional evaluation, while Mamba uses parallel scans with input-dependent coefficients.
+RLT-1's gated merge and decoder depend nonlinearly on the previous decoder state, so these affine scan algorithms do not directly apply.</p>
 <h3 id="feedback-interval" style="scroll-margin-top:88px">Feedback interval: RLT-1, RLT-2 and RLT-0</h3>
 <p>RLT-1 and its two controls differ in one quantity, the feedback interval \(B\): the number of tokens between updates of the state that enters the decoder input.
 RLT-1 updates this state at every token (\(B=1\)), RLT-2 once per chunk of \(B\) tokens, and RLT-0 never (\(B=\infty\)).
@@ -277,26 +299,26 @@ Every eight-layer comparison uses initialization seeds 42, 43 and 44 with shared
 <p>Models have width 512, FFN width 1,365 and four attention heads.
 RLT-1 uses an SWA window of eight, one encoder-memory group, feedback scale 0.1 and TBPTT 128, which covers every training sequence.
 In these comparisons, parity, addition and S5 train for 2,000 steps and mod 5 for 5,000.
-RLT-1 has 26.10–28.73M parameters and Transformer 8 has 25.31M, so equal layer counts do not match parameters or compute.
+RLT-1 has 26.10–28.73M parameters and GPT Layer 8 has 25.31M, so equal layer counts do not match parameters or compute.
 Length generalization uses each run&#x27;s checkpoint with the lowest in-distribution validation loss, taking the earliest step on ties, and evaluates 1,024 shared examples per length (256 operand pairs for addition).</p>
 <h3 id="depth-allocation" style="scroll-margin-top:88px">Depth allocation and length generalization</h3>
-<figure><a href="assets/main-results/depth-allocation-generalization.png" aria-label="Open full-size image: Length generalization on parity, swaps-S5 and both mod-5 tasks for all five RLT-1 splits and Transformer 8, with three-seed error bars."><img src="assets/main-results/depth-allocation-generalization.png" alt="Length generalization on parity, swaps-S5 and both mod-5 tasks for all five RLT-1 splits and Transformer 8, with three-seed error bars." width="2160" height="1660" loading="lazy" decoding="async"></a><figcaption>Gray regions mark training lengths, dotted lines mark uniform-prediction accuracy, and error bars show untrimmed sample SD. Parity and swaps-S5 use 2,000-step runs; both mod-5 tasks use 5,000-step runs for every model. <a href="assets/main-results/depth-allocation-generalization.pdf">PDF ↗</a> · <a href="assets/main-results/depth-allocation-generalization.svg">SVG ↗</a></figcaption></figure>
+<figure><a href="assets/main-results/depth-allocation-generalization.png" aria-label="Open full-size image: Length generalization on parity, swaps-S5 and both mod-5 tasks for all five RLT-1 splits and GPT Layer 8, with three-seed error bars."><img src="assets/main-results/depth-allocation-generalization.png" alt="Length generalization on parity, swaps-S5 and both mod-5 tasks for all five RLT-1 splits and GPT Layer 8, with three-seed error bars." width="2160" height="1660" loading="lazy" decoding="async"></a><figcaption>Gray regions mark training lengths, dotted lines mark uniform-prediction accuracy, and error bars show untrimmed sample SD. Parity and swaps-S5 use 2,000-step runs; both mod-5 tasks use 5,000-step runs for every model. <a href="assets/main-results/depth-allocation-generalization.pdf">PDF ↗</a> · <a href="assets/main-results/depth-allocation-generalization.svg">SVG ↗</a></figcaption></figure>
 <ul>
-<li><strong>Parity:</strong> after training on at most 40 bits, 5+3 and 7+1 reach <strong>100 ± 0%</strong> at 256 bits in all three seeds; Transformer 8 reaches 50.07 ± 1.63%. At step 500, 6+2 already reaches 99.44 ± 0.98% validation accuracy, versus 48.48 ± 0.53% for the Transformer.</li>
+<li><strong>Parity:</strong> after training on at most 40 bits, 5+3 and 7+1 reach <strong>100 ± 0%</strong> at 256 bits in all three seeds; GPT Layer 8 reaches 50.07 ± 1.63%. At step 500, 6+2 already reaches 99.44 ± 0.98% validation accuracy, versus 48.48 ± 0.53% for the Transformer.</li>
 <li><strong>Swaps-S5</strong> favors a larger decoder. At 256 operations, eight times the training length, 4+4 reaches <strong>97.30 ± 2.76%</strong> final-state accuracy, versus 0.85 ± 0.30% for the Transformer; at 512 operations it still reaches 55.70 ± 25.78%. Splits 7+1 and 8+0 are near the uniform reference at 256 operations despite high training-length accuracy.</li>
 <li><strong>Mod 5:</strong> on flat expressions of length 63, 6+2 reaches <strong>93.36 ± 5.69%</strong>, versus 33.20 ± 2.33% for the Transformer. On bracketed expressions of length 64, 5+3 reaches 67.97 ± 2.91%, versus 46.71 ± 1.21%. Accuracy falls on longer expressions, and several flat mod-5 splits vary widely across seeds.</li>
 </ul>
-<figure><a href="assets/experiments-depth8/parity-errorbars.png" aria-label="Open full-size image: Parity accuracy at steps 500 and 2,000, with individual seeds, means and sample SD."><img src="assets/experiments-depth8/parity-errorbars.png" alt="Parity accuracy at steps 500 and 2,000, with individual seeds, means and sample SD." width="1991" height="759" loading="lazy" decoding="async"></a><figcaption>Both panels use the same 768 validation examples, after 256,000 and 1,024,000 training examples per seed. <a href="assets/experiments-depth8/parity-errorbars.pdf">PDF ↗</a></figcaption></figure>
+<figure><a href="assets/experiments-depth8/parity-errorbars.png" aria-label="Open full-size image: Parity accuracy at steps 500 and 2,000, with individual seeds, means and sample SD."><img src="assets/experiments-depth8/parity-errorbars.png" alt="Parity accuracy at steps 500 and 2,000, with individual seeds, means and sample SD." width="1992" height="759" loading="lazy" decoding="async"></a><figcaption>Both panels use the same 768 validation examples, after 256,000 and 1,024,000 training examples per seed. <a href="assets/experiments-depth8/parity-errorbars.pdf">PDF ↗</a></figcaption></figure>
 <h3 id="feedback-frequency" style="scroll-margin-top:88px">Feedback frequency</h3>
 <p>RLT-0 and RLT-2 with four-token chunks (chunk4) were trained at every split with the data, optimizer and seeds of the RLT-1 runs. RLT-2 has the same parameters as RLT-1.</p>
-<figure><a href="assets/main-results/feedback-frequency-generalization.png" aria-label="Open full-size image: Feedback frequency at a fixed 4+4 split: RLT-1, RLT-2 chunk4, RLT-0 and Transformer 8 on parity, swaps-S5 and bracketed mod-5."><img src="assets/main-results/feedback-frequency-generalization.png" alt="Feedback frequency at a fixed 4+4 split: RLT-1, RLT-2 chunk4, RLT-0 and Transformer 8 on parity, swaps-S5 and bracketed mod-5." width="2520" height="860" loading="lazy" decoding="async"></a><figcaption><a href="assets/main-results/feedback-frequency-generalization.pdf">PDF ↗</a> · <a href="assets/main-results/feedback-frequency-generalization.svg">SVG ↗</a></figcaption></figure>
+<figure><a href="assets/main-results/feedback-frequency-generalization.png" aria-label="Open full-size image: Feedback frequency at a fixed 4+4 split: RLT-1, RLT-2 chunk4, RLT-0 and GPT Layer 8 on parity, swaps-S5 and bracketed mod-5."><img src="assets/main-results/feedback-frequency-generalization.png" alt="Feedback frequency at a fixed 4+4 split: RLT-1, RLT-2 chunk4, RLT-0 and GPT Layer 8 on parity, swaps-S5 and bracketed mod-5." width="2520" height="860" loading="lazy" decoding="async"></a><figcaption><a href="assets/main-results/feedback-frequency-generalization.pdf">PDF ↗</a> · <a href="assets/main-results/feedback-frequency-generalization.svg">SVG ↗</a></figcaption></figure>
 <p>At 64 bits, RLT-1 reaches 100 ± 0% parity accuracy and chunk4 98.99 ± 1.66%, while RLT-0 stays near chance at 50.23 ± 3.80%.
 Swaps-S5 is more sensitive to the interval: at 64 operations, RLT-1 reaches 100 ± 0% and chunk4 19.60 ± 6.54%, and RLT-0 and the Transformer are near the 1/120 uniform reference.
 Relative to RLT-1, four-token chunks lose about one percentage point on 64-bit parity and about 80 points on 64-operation swaps-S5.</p>
 <p>The effect of chunking also depends on the split.
 Chunk4 4+4 retains 69.34 ± 24.17% parity accuracy at 256 bits, whereas chunk4 7+1 and 8+0 are near chance at 64 bits.
 On swaps-S5, chunk4 5+3 reaches 79.92 ± 10.89% at 48 operations and 50.16 ± 18.77% at 64.</p>
-<div class="table-container" tabindex="0" role="region" aria-label="Best-checkpoint test accuracy at 4+4"><table class="table"><caption class="has-text-grey" style="padding:1rem;text-align:left">Best-checkpoint test accuracy (%) at 4+4, mean ± sample SD over three seeds</caption><thead><tr><th scope="col">Task / length</th><th scope="col">RLT-1</th><th scope="col">RLT-0</th><th scope="col">RLT-2 chunk4</th><th scope="col">Transformer 8</th></tr></thead><tbody>
+<div class="table-container" tabindex="0" role="region" aria-label="Best-checkpoint test accuracy at 4+4"><table class="table"><caption class="has-text-grey" style="padding:1rem;text-align:left">Best-checkpoint test accuracy (%) at 4+4, mean ± sample SD over three seeds</caption><thead><tr><th scope="col">Task / length</th><th scope="col">RLT-1</th><th scope="col">RLT-0</th><th scope="col">RLT-2 chunk4</th><th scope="col">GPT Layer 8</th></tr></thead><tbody>
 <tr><th scope="row">Parity / 64</th><td>100.00 ± 0.00</td><td>50.23 ± 3.80</td><td>98.99 ± 1.66</td><td>48.47 ± 1.18</td></tr>
 <tr><th scope="row">S5 swaps / 48</th><td>100.00 ± 0.00</td><td>7.26 ± 3.17</td><td>68.29 ± 8.75</td><td>22.10 ± 2.76</td></tr>
 <tr><th scope="row">S5 standard / 32</th><td>1.53 ± 0.46</td><td>1.20 ± 0.72</td><td>1.37 ± 0.87</td><td>0.91 ± 0.15</td></tr>
@@ -320,7 +342,7 @@ Standard S5 remains near the 1/120 reference across feedback variants.
 A three-seed ablation of the feedback scale finds no consistent effect on addition: across 63 comparisons with α = 0.1 at the same split and width, lowering α to 0.03 or 0.01 raises 37 means and lowers 26, and only three differences exceed both sample SDs (<a href="assets/addition-feedback-20261005/generalization-three-seed.png">figure</a>).
 These experiments use supervised training; RL performance is not evaluated.</p>
 <h3 id="complete-study" style="scroll-margin-top:88px">Complete six-task study at 2,000 steps</h3>
-<p>The September 17, 2026 snapshot compares <strong>RLT-1 4+4, 5+3, 6+2, 7+1, 8+0 and Transformer 8</strong> on all six tasks.
+<p>The September 17, 2026 snapshot compares <strong>RLT-1 Layer 4 + 4, 5+3, 6+2, 7+1, 8+0 and GPT Layer 8</strong> on all six tasks.
 All <strong>108 runs</strong> completed <strong>2,000 optimizer steps</strong> with initialization seeds <strong>42, 43 and 44 for every task</strong>.
 The 8+0 variant has no decoder blocks but still applies the gated recurrent merge.</p>
 <details class="figure-details"><summary>Validation accuracy, length generalization and diagnostics</summary>
@@ -331,12 +353,12 @@ Addition measures <strong>teacher-forced answer-token accuracy</strong>, includi
 <thead>
 <tr>
 <th scope="col">Task</th>
-<th scope="col" style="text-align: right;">RLT-1 4+4</th>
-<th scope="col" style="text-align: right;">RLT-1 5+3</th>
-<th scope="col" style="text-align: right;">RLT-1 6+2</th>
-<th scope="col" style="text-align: right;">RLT-1 7+1</th>
-<th scope="col" style="text-align: right;">RLT-1 8+0</th>
-<th scope="col" style="text-align: right;">Transformer 8</th>
+<th scope="col" style="text-align: right;">RLT-1 Layer 4 + 4</th>
+<th scope="col" style="text-align: right;">RLT-1 Layer 5 + 3</th>
+<th scope="col" style="text-align: right;">RLT-1 Layer 6 + 2</th>
+<th scope="col" style="text-align: right;">RLT-1 Layer 7 + 1</th>
+<th scope="col" style="text-align: right;">RLT-1 Layer 8 + 0</th>
+<th scope="col" style="text-align: right;">GPT Layer 8</th>
 </tr>
 </thead>
 <tbody>
@@ -402,18 +424,18 @@ Bracketed mod-5 means are closer, spanning 70.53–75.17% for RLT-1 versus 73.87
 The 5,000-step runs above train both mod-5 tasks longer.</p>
 <h4>Length generalization</h4>
 <p>The evaluation covers <strong>846 model–seed–length combinations</strong>, summarized as 282 three-seed means and sample SDs. At every task and length, all models and seeds receive the same 256 addition pairs or 1,024 formal-task sequences.</p>
-<figure><a href="assets/experiments-depth8/generalization-depth08-primary.png" aria-label="Open full-size image: Length generalization on all six tasks with three-seed error bars."><img src="assets/experiments-depth8/generalization-depth08-primary.png" alt="Length generalization on all six tasks with three-seed error bars." width="2050" height="2043" loading="lazy" decoding="async"></a><figcaption>Gray regions mark training lengths. Addition uses teacher-forced answer tokens; other tasks use final labels or states. <a href="assets/experiments-depth8/generalization-depth08-primary.pdf">PDF ↗</a></figcaption></figure>
+<figure><a href="assets/experiments-depth8/generalization-depth08-primary.png" aria-label="Open full-size image: Length generalization on all six tasks with three-seed error bars."><img src="assets/experiments-depth8/generalization-depth08-primary.png" alt="Length generalization on all six tasks with three-seed error bars." width="2050" height="2040" loading="lazy" decoding="async"></a><figcaption>Gray regions mark training lengths. Addition uses teacher-forced answer tokens; other tasks use final labels or states. <a href="assets/experiments-depth8/generalization-depth08-primary.pdf">PDF ↗</a></figcaption></figure>
 <p>Accuracy at the longest tested length, in percent. Addition lengths count digits per operand; formal-task lengths count input symbols or operations, excluding boundary markers.</p>
 <div class="table-container" tabindex="0" role="region" aria-label="Three-seed accuracy results"><table class="table results-table">
 <thead>
 <tr>
 <th scope="col">Task (test length)</th>
-<th scope="col" style="text-align: right;">RLT-1 4+4</th>
-<th scope="col" style="text-align: right;">RLT-1 5+3</th>
-<th scope="col" style="text-align: right;">RLT-1 6+2</th>
-<th scope="col" style="text-align: right;">RLT-1 7+1</th>
-<th scope="col" style="text-align: right;">RLT-1 8+0</th>
-<th scope="col" style="text-align: right;">Transformer 8</th>
+<th scope="col" style="text-align: right;">RLT-1 Layer 4 + 4</th>
+<th scope="col" style="text-align: right;">RLT-1 Layer 5 + 3</th>
+<th scope="col" style="text-align: right;">RLT-1 Layer 6 + 2</th>
+<th scope="col" style="text-align: right;">RLT-1 Layer 7 + 1</th>
+<th scope="col" style="text-align: right;">RLT-1 Layer 8 + 0</th>
+<th scope="col" style="text-align: right;">GPT Layer 8</th>
 </tr>
 </thead>
 <tbody>
@@ -473,25 +495,25 @@ The 5,000-step runs above train both mod-5 tasks longer.</p>
 </tr>
 </tbody>
 </table></div>
-<figure><a href="assets/experiments-depth8/generalization-depth08-s5-metrics.png" aria-label="Open full-size image: S5 length generalization under prefix-token, final-state and whole-sequence scoring."><img src="assets/experiments-depth8/generalization-depth08-s5-metrics.png" alt="S5 length generalization under prefix-token, final-state and whole-sequence scoring." width="2051" height="2043" loading="lazy" decoding="async"></a><figcaption>Whole-sequence accuracy requires every prefix prediction to be correct. Each panel labels its vertical scale. <a href="assets/experiments-depth8/generalization-depth08-s5-metrics.pdf">PDF ↗</a></figcaption></figure>
+<figure><a href="assets/experiments-depth8/generalization-depth08-s5-metrics.png" aria-label="Open full-size image: S5 length generalization under prefix-token, final-state and whole-sequence scoring."><img src="assets/experiments-depth8/generalization-depth08-s5-metrics.png" alt="S5 length generalization under prefix-token, final-state and whole-sequence scoring." width="2050" height="2040" loading="lazy" decoding="async"></a><figcaption>Whole-sequence accuracy requires every prefix prediction to be correct. Each panel labels its vertical scale. <a href="assets/experiments-depth8/generalization-depth08-s5-metrics.pdf">PDF ↗</a></figcaption></figure>
 <p><a href="assets/experiments-depth8/training-loss.png">Training loss</a>, <a href="assets/experiments-depth8/parity-individual-seeds.png">individual parity seeds</a>, <a href="assets/experiments-depth8/validation-token-accuracy.png">fixed-length token accuracy</a>, and <a href="assets/experiments-depth8/generalization-depth08-token-accuracy.png">token-level length generalization</a> provide additional diagnostics. <a href="assets/experiments-depth8/README.md">Depth-eight figures and protocol</a></p>
 </details>
 <h3 id="depth16" style="scroll-margin-top:88px">Sixteen-layer parity</h3>
-<p>A separate seed-42 series trains RLT-1 8+8 through 16+0 and Transformer 16 on parity lengths 3–40 with global batch 1,024. All ten runs completed 2,000 steps.
+<p>A separate seed-42 series trains RLT-1 Layer 8 + 8 through 16+0 and GPT Layer 16 on parity lengths 3–40 with global batch 1,024. All ten runs completed 2,000 steps.
 Comparing each run&#x27;s best in-distribution checkpoint with its step-2,000 checkpoint on the same 1,024 examples per length leaves 74 of 80 accuracies unchanged.
-<strong>8+8, 9+7, 11+5 and 16+0 retain 100% at 256 bits</strong> at both checkpoints, compared with 49.41% for Transformer 16.</p>
+<strong>8+8, 9+7, 11+5 and 16+0 retain 100% at 256 bits</strong> at both checkpoints, compared with 49.41% for GPT Layer 16.</p>
 <figure><a href="assets/variants-20260925/parity-depth16-best-vs-step2000.png" aria-label="Open full-size image: Sixteen-layer parity: best versus step-2,000 checkpoints, seed 42."><img src="assets/variants-20260925/parity-depth16-best-vs-step2000.png" alt="Sixteen-layer parity: best versus step-2,000 checkpoints, seed 42." width="2340" height="1152" loading="lazy" decoding="async"></a></figure>
 <div class="table-container" tabindex="0" role="region" aria-label="Sixteen-layer parity at 256 bits"><table class="table"><caption class="has-text-grey" style="padding:1rem;text-align:left">Accuracy (%) at 256 bits, seed 42</caption><thead><tr><th scope="col">Model</th><th scope="col">Best step</th><th scope="col">Best checkpoint</th><th scope="col">Step 2,000</th></tr></thead><tbody>
-<tr><th scope="row">RLT-1 8+8</th><td>1,400</td><td>100.00</td><td>100.00</td></tr>
-<tr><th scope="row">RLT-1 9+7</th><td>1,300</td><td>100.00</td><td>100.00</td></tr>
-<tr><th scope="row">RLT-1 10+6</th><td>1,800</td><td>62.70</td><td>66.11</td></tr>
-<tr><th scope="row">RLT-1 11+5</th><td>1,300</td><td>100.00</td><td>100.00</td></tr>
-<tr><th scope="row">RLT-1 12+4</th><td>1,000</td><td>98.83</td><td>98.83</td></tr>
-<tr><th scope="row">RLT-1 13+3</th><td>2,000</td><td>99.41</td><td>99.41</td></tr>
-<tr><th scope="row">RLT-1 14+2</th><td>1,500</td><td>63.57</td><td>62.11</td></tr>
-<tr><th scope="row">RLT-1 15+1</th><td>1,100</td><td>94.14</td><td>94.82</td></tr>
-<tr><th scope="row">RLT-1 16+0</th><td>1,900</td><td>100.00</td><td>100.00</td></tr>
-<tr><th scope="row">Transformer 16</th><td>2,000</td><td>49.41</td><td>49.41</td></tr>
+<tr><th scope="row">RLT-1 Layer 8 + 8</th><td>1,400</td><td>100.00</td><td>100.00</td></tr>
+<tr><th scope="row">RLT-1 Layer 9 + 7</th><td>1,300</td><td>100.00</td><td>100.00</td></tr>
+<tr><th scope="row">RLT-1 Layer 10 + 6</th><td>1,800</td><td>62.70</td><td>66.11</td></tr>
+<tr><th scope="row">RLT-1 Layer 11 + 5</th><td>1,300</td><td>100.00</td><td>100.00</td></tr>
+<tr><th scope="row">RLT-1 Layer 12 + 4</th><td>1,000</td><td>98.83</td><td>98.83</td></tr>
+<tr><th scope="row">RLT-1 Layer 13 + 3</th><td>2,000</td><td>99.41</td><td>99.41</td></tr>
+<tr><th scope="row">RLT-1 Layer 14 + 2</th><td>1,500</td><td>63.57</td><td>62.11</td></tr>
+<tr><th scope="row">RLT-1 Layer 15 + 1</th><td>1,100</td><td>94.14</td><td>94.82</td></tr>
+<tr><th scope="row">RLT-1 Layer 16 + 0</th><td>1,900</td><td>100.00</td><td>100.00</td></tr>
+<tr><th scope="row">GPT Layer 16</th><td>2,000</td><td>49.41</td><td>49.41</td></tr>
 </tbody></table></div>
 <h3>Independent community experiments</h3>
 <p>Earlier state-tracking results contributed by <a href="https://x.com/AradhyeAgarwal">@AradhyeAgarwal</a> use a separate implementation with about 79K parameters, three seeds and training length 32. Evaluation uses 2,048 test programs per task and length, extending to 128 operations.</p>
@@ -511,11 +533,17 @@ Comparing each run&#x27;s best in-distribution checkpoint with its step-2,000 ch
 <p>Behavior log-probabilities must describe the actual sampling distribution. Exact importance sampling additionally requires support coverage. Shared transitions remove structural prompt-boundary mismatch; numerical kernel parity and off-policy estimation remain separate concerns.</p>
 <p>For the execution-level distinction, see the <a href="https://github.com/yifanzhang-pro/Pretraining-RL-Science/blob/master/Prefill_Decode_Kernel_Mismatch.pdf">prefill–decode kernel mismatch note</a>.</p>
 <p><a class="button is-primary" href="https://arxiv.org/abs/2610.07591">Read the paper on arXiv ↗</a></p>
+<p><a href="Recurrent_Looped_Transformer.pdf">Latest English PDF</a> · <a href="Recurrent_Looped_Transformer_ZH.pdf">中文论文</a></p>
+</div></div></section>
+<section id="slides" class="section content-section"><div class="container"><h2 class="section-title">Slides</h2><div class="content">
+<p>A 14-slide talk connects linear attention, selective state-space models, and DeltaNet with RLT's nonlinear recurrent decoder.</p>
+<p><a href="slides/">Web presentation</a> · <a href="slides/linear-attention-ssm-rlt.pdf">PDF</a> · <a href="slides/linear-attention-ssm-rlt.pptx">PowerPoint</a></p>
+<p><a href="https://yifzhang.com/slides-rlt/">General-exam presentation</a></p>
 </div></div></section>
 <section id="citation" class="section content-section"><div class="container"><h2 class="section-title">Citation</h2><div class="content"><p>If you find this work useful, please cite:</p>
 <pre id="cite-bibtex"><code>@misc{zhang2026recurrentlooped,
   title         = {Recurrent Looped Transformer},
-  author        = {Zhang, Yifan and Feng, Jichen and Qin, Shihan},
+  author        = {Zhang, Yifan and Feng, Jichen and Qin, Shihan and Kung, Sun-Yuan and Wang, Mengdi},
   year          = {2026},
   eprint        = {2610.07591},
   archivePrefix = {arXiv},

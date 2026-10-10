@@ -1,11 +1,11 @@
 # Feedback-variant and sixteen-layer parity figures
 
-These figures accompany the October 5, 2026 paper revision.
+Figure labels are synchronized with manuscript commit [d6a8ffe](https://github.com/yifanzhang-pro/Recurrent-Looped-Transformer-Overleaf/commit/d6a8ffecf777794c407e906ea376aeafdb08dd9e).
 They come from the completed September 25, 2026 snapshot.
 
 RLT-0 and RLT-2 chunk4 were trained at every eight-layer split (4+4 through 8+0) with seeds 42, 43 and 44, using the data and optimizer of the RLT-1 runs.
 Mod 5 trains for 5,000 steps; addition, parity and S5 train for 2,000.
-The RLT-1 and Transformer 8 controls use the same seeds, including 5,000-step mod-5 runs.
+The RLT-1 and GPT Layer 8 controls use the same seeds, including 5,000-step mod-5 runs.
 Every curve shows mean ± sample SD (n = 3, ddof = 1).
 Length generalization uses each run's checkpoint with the lowest in-distribution validation loss, taking the earliest step on ties, and 1,024 shared examples per length.
 

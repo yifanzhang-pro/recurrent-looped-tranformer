@@ -1,7 +1,7 @@
 # Depth-eight experiment figures
 
-These figures accompany the September 17, 2026 paper revision.
-Source manuscript commit: [94d36d1](https://github.com/yifanzhang-pro/Recurrent-Looped-Transformer-Overleaf/commit/94d36d1).
+These figures use the September 17, 2026 experiment snapshot.
+Figure labels are synchronized with manuscript commit [d6a8ffe](https://github.com/yifanzhang-pro/Recurrent-Looped-Transformer-Overleaf/commit/d6a8ffecf777794c407e906ea376aeafdb08dd9e).
 The public English and Chinese PDFs include Figure 1 on page one.
 
 All 108 runs completed 2,000 steps: six architectures, six tasks and initialization seeds 42, 43, 44.
