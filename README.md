@@ -11,7 +11,7 @@ The same update runs over prompt and response tokens.
 
 **Authors:** [Yifan Zhang](https://yifzhang.com)¹, Jichen Feng², Shihan Qin², Sun-Yuan Kung¹, Mengdi Wang¹ · ¹Princeton University, ²University of Pennsylvania
 
-**arXiv:** [2610.07591](https://arxiv.org/abs/2610.07591) · **Submitted:** October 6, 2026 · **Project updated:** October 10, 2026
+**arXiv:** [2610.07591](https://arxiv.org/abs/2610.07591) · **Submitted:** October 6, 2026 · **Project updated:** October 11, 2026
 
 [[arXiv](https://arxiv.org/abs/2610.07591)] [[Latest PDF](./Recurrent_Looped_Transformer.pdf)] [[arXiv PDF](https://arxiv.org/pdf/2610.07591)] [[中文论文](./Recurrent_Looped_Transformer_ZH.pdf)] [[Project website](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)] [[Slides](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/slides/)] [[Depth allocation](#depth-allocation-and-length-generalization)] [[Feedback frequency](#feedback-frequency)] [[Complete six-task study](#complete-six-task-study-at-2000-steps)]
 
