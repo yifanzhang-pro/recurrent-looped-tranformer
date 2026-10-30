@@ -13,7 +13,7 @@ The same update runs over prompt and response tokens.
 
 **arXiv:** [2610.07591](https://arxiv.org/abs/2610.07591) · **Submitted:** October 6, 2026 · **Project updated:** October 11, 2026
 
-[[arXiv](https://arxiv.org/abs/2610.07591)] [[Latest PDF](./Recurrent_Looped_Transformer.pdf)] [[arXiv PDF](https://arxiv.org/pdf/2610.07591)] [[中文论文](./Recurrent_Looped_Transformer_ZH.pdf)] [[Project website](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)] [[Slides](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/slides/)] [[Depth allocation](#depth-allocation-and-length-generalization)] [[Feedback frequency](#feedback-frequency)] [[Complete six-task study](#complete-six-task-study-at-2000-steps)]
+[[arXiv](https://arxiv.org/abs/2610.07591)] [[Latest PDF](./Recurrent_Looped_Transformer.pdf)] [[arXiv PDF](https://arxiv.org/pdf/2610.07591)] [[中文论文](./Recurrent_Looped_Transformer_ZH.pdf)] [[Project website](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)] [[Depth allocation](#depth-allocation-and-length-generalization)] [[Feedback frequency](#feedback-frequency)] [[Complete six-task study](#complete-six-task-study-at-2000-steps)]
 
 ![RLT recurrence across the last prompt tokens and the first response token.](figure1.png)
 
@@ -318,7 +318,6 @@ RLT fits both tasks at the training length, but accuracy declines on longer sequ
 - [Project website](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/)
 - [Depth-eight experiment figures](assets/experiments-depth8/README.md)
 - [Feedback-variant and sixteen-layer parity figures](assets/variants-20260925/README.md)
-- [Linear Attention, State Spaces, and RLT: 14-slide talk](https://yifanzhang-pro.github.io/recurrent-looped-tranformer/slides/) · [PDF](slides/linear-attention-ssm-rlt.pdf) · [PowerPoint](slides/linear-attention-ssm-rlt.pptx)
 - [General-exam presentation](https://yifzhang.com/slides-rlt/)
 - [Prefill–decode kernel mismatch note](https://github.com/yifanzhang-pro/Pretraining-RL-Science/blob/master/Prefill_Decode_Kernel_Mismatch.pdf)
 
