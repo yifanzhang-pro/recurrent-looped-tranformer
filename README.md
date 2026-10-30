@@ -50,8 +50,8 @@ For a decoder state $H=(s,C^D)$, encoder representation $e$, and encoder memory 
 
 ```math
 \begin{aligned}
-\mathcal F_\Theta(H;e,M,t)&:=D_\phi\!\left(\operatorname{Merge}(e,s);M,C^D,t\right),\\
-\mathcal G_\Theta(H)&:=\operatorname{softmax}\!\left(W_o\operatorname{RMSNorm}_o(s)\right).
+\mathcal F_\Theta(H;e,M,t)&:=D_\phi\!\left(\mathrm{Merge}(e,s);M,C^D,t\right),\\
+\mathcal G_\Theta(H)&:=\mathrm{softmax}\!\left(W_o\,\mathrm{RMSNorm}_o(s)\right).
 \end{aligned}
 ```
 
